@@ -13,16 +13,16 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Download Ahk2Exe
+    - name: Download Ahk2Exe Portable
       run: |
-        Invoke-WebRequest -Uri "https://www.autohotkey.com/download/ahk-install.exe" -OutFile "ahk-install.exe"
-        Start-Process "ahk-install.exe" -ArgumentList "/S" -Wait
+        Invoke-WebRequest -Uri "https://www.autohotkey.com/download/1.1/Ahk2Exe.zip" -OutFile "Ahk2Exe.zip"
+        Expand-Archive Ahk2Exe.zip -DestinationPath Ahk2Exe
 
     - name: Compile .ahk to .exe
       run: |
         $ahkFile = Get-ChildItem -Filter *.ahk | Select-Object -First 1
         $exeName = $ahkFile.Name -replace '\.ahk$', '.exe'
-        & "C:\Program Files\AutoHotkey\Compiler\Ahk2Exe.exe" /in $ahkFile.FullName /out $exeName
+        & ".\Ahk2Exe\Ahk2Exe.exe" /in $ahkFile.FullName /out $exeName
 
     - name: Upload compiled exe
       uses: actions/upload-artifact@v4
