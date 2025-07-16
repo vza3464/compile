@@ -1,0 +1,31 @@
+name: Compile AHK to EXE
+
+on:
+  push:
+    paths:
+      - '**.ahk'
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Download Ahk2Exe
+      run: |
+        Invoke-WebRequest -Uri "https://www.autohotkey.com/download/ahk-install.exe" -OutFile "ahk-install.exe"
+        Start-Process "ahk-install.exe" -ArgumentList "/S" -Wait
+
+    - name: Compile .ahk to .exe
+      run: |
+        $ahkFile = Get-ChildItem -Filter *.ahk | Select-Object -First 1
+        $exeName = $ahkFile.Name -replace '\.ahk$', '.exe'
+        & "C:\Program Files\AutoHotkey\Compiler\Ahk2Exe.exe" /in $ahkFile.FullName /out $exeName
+
+    - name: Upload compiled exe
+      uses: actions/upload-artifact@v4
+      with:
+        name: compiled-exe
+        path: "*.exe"
